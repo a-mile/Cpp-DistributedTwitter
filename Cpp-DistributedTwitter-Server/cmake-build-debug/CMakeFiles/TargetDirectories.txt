@@ -1,0 +1,3 @@
+/Users/a-mile/OneDrive/Studia/SK2/Cpp-DistributedTwitter/Cpp-DistributedTwitter-Server/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/a-mile/OneDrive/Studia/SK2/Cpp-DistributedTwitter/Cpp-DistributedTwitter-Server/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/Users/a-mile/OneDrive/Studia/SK2/Cpp-DistributedTwitter/Cpp-DistributedTwitter-Server/cmake-build-debug/CMakeFiles/Cpp_DistributedTwitter_Server.dir

@@ -1,0 +1,22 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/a-mile/OneDrive/Studia/SK2/Cpp-DistributedTwitter/Cpp-DistributedTwitter-Client/main.cpp
+arpa/inet.h
+-
+stdlib.h
+-
+unistd.h
+-
+fstream
+-
+iostream
+-
+ctime
+-
+
