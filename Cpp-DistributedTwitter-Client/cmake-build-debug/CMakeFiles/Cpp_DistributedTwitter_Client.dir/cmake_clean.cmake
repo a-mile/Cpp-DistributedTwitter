@@ -1,5 +1,6 @@
 file(REMOVE_RECURSE
   "CMakeFiles/Cpp_DistributedTwitter_Client.dir/main.cpp.o"
+  "CMakeFiles/Cpp_DistributedTwitter_Client.dir/server.cpp.o"
   "Cpp_DistributedTwitter_Client.pdb"
   "Cpp_DistributedTwitter_Client"
 )

@@ -4,14 +4,25 @@
 #include <fstream>
 #include <iostream>
 #include <ctime>
+#include <vector>
+
+#include "server.h"
 
 using namespace std;
 
 const int messageSize = 400;
+const int ipSize = 20;
+const int serverNameSize = 20;
 const int postSize = 200;
-const char* author = "Amadeusz";
 
-void writePost(int server)
+const char* author = "Amadeusz";
+const char* ip = "127.0.0.1";
+const int port = 3000;
+
+server myServer(author,ip,port);
+vector<server> servers;
+
+void writePost()
 {
     char* message = new char[messageSize];
     char* post = new char[postSize];
@@ -42,61 +53,134 @@ void writePost(int server)
     strcat(message, post);
     strcat(message,delimiter);
 
-    write(server, message, messageSize);
+    myServer.connect();
+    write(myServer.getDescriptor(), message, messageSize);
+    myServer.disconnect();
 }
 
-void readPosts(int server)
+void readPosts()
 {
     char* reqType = new char;
 
-    write(server,reqType,1);
+    for(int i = 0; i < servers.size(); i++) {
+        servers[i].connect();
 
-    char* message = new char[messageSize];
-    while(read(server,message,messageSize) > 0) {
-        write(1, message, messageSize);
-        cout<<endl;
+        write(servers[i].getDescriptor(),reqType,1);
+
+        char* message = new char[messageSize];
+        while(read(servers[i].getDescriptor(),message,messageSize) > 0) {
+            write(1, message, messageSize);
+            cout<<endl;
+        }
+
+        servers[i].disconnect();
     }
 }
 
-
-int main(int argc, char **argv)
+void loadServers()
 {
-    int server;
-    int port = 3000;
-    string host = "localhost";
+    servers.push_back(myServer);
 
-    struct sockaddr_in server_addr;
-    memset(&server_addr,0,sizeof(server_addr));
-    server_addr.sin_family = AF_INET;
-    inet_aton (host.c_str(), &server_addr.sin_addr);
-    server_addr.sin_port = htons(port);
+    ifstream input("servers");
 
-    if ((server = socket (PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
-        perror ("Nie można utworzyć gniazdka");
-        exit (EXIT_FAILURE);
+    while(true) {
+
+        char* currentServerName = new char[serverNameSize];
+        char* currentServerIp = new char[ipSize];
+        int currentServerPort;
+
+        if(!(input >> currentServerName))
+            break;
+        input >> currentServerIp;
+        input >> currentServerPort;
+
+        server currentServer(currentServerName, currentServerIp, currentServerPort);
+
+        servers.push_back(currentServer);
     }
 
-    if (connect (server, (struct sockaddr*) &server_addr, sizeof server_addr) < 0) {
-        perror ("Brak połączenia");
-        exit (EXIT_FAILURE);
-    }
+    input.close();
+}
 
+void showServerList()
+{
+    for(int i = 0; i < servers.size(); i++)
+    {
+        cout<<servers[i].getInfo()<<endl;
+    }
+}
+
+void addServer()
+{
+    char* ip = new char[ipSize];
+    char* name = new char[serverNameSize];
+    int port;
+
+    cout<<"Podaj nazwe serwera"<<endl;
+    cin>>name;
+    cout<<"Podaj adres IP serwera"<<endl;
+    cin>>ip;
+    cout<<"Podaj numer portu serwera"<<endl;
+    cin>>port;
+
+    ofstream output("servers", fstream::out | fstream::app);
+
+    output << name;
+    output << endl;
+    output << ip;
+    output << endl;
+    output << port;
+    output << endl;
+    output.close();
+}
+
+void manageServers()
+{
     int choose;
-    cout<<"1 - Napisz nowy post"<<endl;
-    cout<<"2 - Przeglądaj posty"<<endl;
-    cin>>choose;
+    cout<<"1 - Dodaj nowy serwer"<<endl;
+    cout<<"2 - Pokaz liste serwerow"<<endl;
+    cin>> choose;
 
     switch(choose){
         case 1:
-            writePost(server);
+            addServer();
             break;
         case 2:
-            readPosts(server);
+            showServerList();
             break;
         default:
             break;
     }
+}
 
-    close(server);
+int main(int argc, char **argv)
+{
+    loadServers();
+
+    while(true) {
+        int choose;
+
+        cout << "1 - Napisz nowy post" << endl;
+        cout << "2 - Przeglądaj posty" << endl;
+        cout << "3 - Zarzadzaj serwerami" << endl;
+        cout << "4 - Zamknij" << endl;
+        cin >> choose;
+
+        if(choose == 4)
+            break;
+
+        switch (choose) {
+            case 1:
+                writePost();
+                break;
+            case 2:
+                readPosts();
+                break;
+            case 3:
+                manageServers();
+            default:
+                break;
+        }
+    }
     return 0;
 }

@@ -5,6 +5,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
   "/Users/a-mile/OneDrive/Studia/SK2/Cpp-DistributedTwitter/Cpp-DistributedTwitter-Client/main.cpp" "/Users/a-mile/OneDrive/Studia/SK2/Cpp-DistributedTwitter/Cpp-DistributedTwitter-Client/cmake-build-debug/CMakeFiles/Cpp_DistributedTwitter_Client.dir/main.cpp.o"
+  "/Users/a-mile/OneDrive/Studia/SK2/Cpp-DistributedTwitter/Cpp-DistributedTwitter-Client/server.cpp" "/Users/a-mile/OneDrive/Studia/SK2/Cpp-DistributedTwitter/Cpp-DistributedTwitter-Client/cmake-build-debug/CMakeFiles/Cpp_DistributedTwitter_Client.dir/server.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "AppleClang")
 

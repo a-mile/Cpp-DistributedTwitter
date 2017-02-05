@@ -85,6 +85,12 @@
 		<Unit filename="/Users/a-mile/OneDrive/Studia/SK2/Cpp-DistributedTwitter/Cpp-DistributedTwitter-Client/main.cpp">
 			<Option target="Cpp_DistributedTwitter_Client"/>
 		</Unit>
+		<Unit filename="/Users/a-mile/OneDrive/Studia/SK2/Cpp-DistributedTwitter/Cpp-DistributedTwitter-Client/server.cpp">
+			<Option target="Cpp_DistributedTwitter_Client"/>
+		</Unit>
+		<Unit filename="/Users/a-mile/OneDrive/Studia/SK2/Cpp-DistributedTwitter/Cpp-DistributedTwitter-Client/server.h">
+			<Option target="Cpp_DistributedTwitter_Client"/>
+		</Unit>
 		<Unit filename="/Users/a-mile/OneDrive/Studia/SK2/Cpp-DistributedTwitter/Cpp-DistributedTwitter-Client/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
 		</Unit>

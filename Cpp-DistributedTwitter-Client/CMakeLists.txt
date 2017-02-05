@@ -3,5 +3,5 @@ project(Cpp_DistributedTwitter_Client)
 
 set(CMAKE_CXX_STANDARD 11)
 
-set(SOURCE_FILES main.cpp)
+set(SOURCE_FILES main.cpp server.cpp server.h)
 add_executable(Cpp_DistributedTwitter_Client ${SOURCE_FILES})
