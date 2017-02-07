@@ -23,15 +23,66 @@ char* server::getInfo() {
     return info;
 }
 
-void server::connect() {
+int server::connect() {
     if ((descriptor = socket (PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
-        perror ("Nie można utworzyć gniazdka");
-        exit (EXIT_FAILURE);
+        return 0;
     }
-    if (::connect (descriptor, (struct sockaddr*) &server_addr, sizeof server_addr) < 0) {
-        perror ("Brak połączenia");
-        exit (EXIT_FAILURE);
+
+    long arg;
+    struct timeval tv;
+    fd_set myset;
+    socklen_t lon;
+    int valopt;
+
+    if( (arg = fcntl(descriptor, F_GETFL, NULL)) < 0) {
+        return 0;
     }
+    arg |= O_NONBLOCK;
+    if( fcntl(descriptor, F_SETFL, arg) < 0) {
+        return 0;
+    }
+
+    int res = ::connect(descriptor, (struct sockaddr *)&server_addr, sizeof(server_addr));
+    if (res < 0) {
+        if (errno == EINPROGRESS) {
+            do {
+                tv.tv_sec = 1;
+                tv.tv_usec = 0;
+                FD_ZERO(&myset);
+                FD_SET(descriptor, &myset);
+                res = select(descriptor+1, NULL, &myset, NULL, &tv);
+                if (res < 0 && errno != EINTR) {
+                    return 0;
+                }
+                else if (res > 0) {
+                    lon = sizeof(int);
+                    if (getsockopt(descriptor, SOL_SOCKET, SO_ERROR, (void*)(&valopt), &lon) < 0) {
+                        return 0;
+                    }
+                    if (valopt) {
+                        return 0;
+                    }
+                    break;
+                }
+                else {
+                    return 0;
+                }
+            }while (1);
+        }
+        else {
+            return 0;
+        }
+    }
+
+    if( (arg = fcntl(descriptor, F_GETFL, NULL)) < 0) {
+        return 0;
+    }
+    arg &= (~O_NONBLOCK);
+    if( fcntl(descriptor, F_SETFL, arg) < 0) {
+        return 0;
+    }
+
+    return 1;
 }
 
 int server::getDescriptor() {

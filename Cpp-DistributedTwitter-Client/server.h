@@ -9,6 +9,8 @@
 #include <ctime>
 #include <vector>
 #include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 class server {
 private:
@@ -20,7 +22,7 @@ private:
 public:
     server(const char*,const char*, int);
     char* getInfo();
-    void connect();
+    int connect();
     int getDescriptor();
     void disconnect();
 };

@@ -53,27 +53,44 @@ void writePost()
     strcat(message, post);
     strcat(message,delimiter);
 
-    myServer.connect();
-    write(myServer.getDescriptor(), message, messageSize);
-    myServer.disconnect();
+    if(myServer.connect()) {
+        write(myServer.getDescriptor(), message, messageSize);
+        myServer.disconnect();
+    }
 }
 
 void readPosts()
 {
     char* reqType = new char;
+    string delimiter = "&";
 
     for(int i = 0; i < servers.size(); i++) {
-        servers[i].connect();
+        if(servers[i].connect()) {
 
-        write(servers[i].getDescriptor(),reqType,1);
+            write(servers[i].getDescriptor(), reqType, 1);
 
-        char* message = new char[messageSize];
-        while(read(servers[i].getDescriptor(),message,messageSize) > 0) {
-            write(1, message, messageSize);
-            cout<<endl;
+            char *message = new char[messageSize];
+            while (read(servers[i].getDescriptor(), message, messageSize) > 0) {
+                size_t pos = 0; 
+                string token;  
+                string messageString(message);
+
+                pos = messageString.find(delimiter); 
+                string date = messageString.substr(0, pos); 
+                messageString.erase(0, pos + delimiter.length()); 
+                pos = messageString.find(delimiter); 
+                string author = messageString.substr(0, pos); 
+                messageString.erase(0, pos + delimiter.length()); 
+                pos = messageString.find(delimiter); 
+                string content = messageString.substr(0, pos);
+
+                cout << date << endl;
+                cout << author << endl;
+                cout << content << endl;
+            }
+
+            servers[i].disconnect();
         }
-
-        servers[i].disconnect();
     }
 }
 
