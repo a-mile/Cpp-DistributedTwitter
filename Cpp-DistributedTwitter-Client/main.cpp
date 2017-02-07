@@ -14,6 +14,7 @@ const int messageSize = 400;
 const int ipSize = 20;
 const int serverNameSize = 20;
 const int postSize = 200;
+const int postLimit = 20;
 
 const char* author = "Amadeusz";
 const char* ip = "127.0.0.1";
@@ -21,6 +22,19 @@ const int port = 3000;
 
 server myServer(author,ip,port);
 vector<server> servers;
+vector<struct post> posts;
+
+struct post{
+    int seconds;
+    string date;
+    string author;
+    string content;
+};
+
+bool comparePosts(const struct post &a, const struct post &b)
+{
+    return a.seconds < b.seconds;
+}
 
 void writePost()
 {
@@ -36,16 +50,22 @@ void writePost()
     *reqType |= 1<<0;
 
     char* date = new char[20];
+    char* seconds = new char[20];
 
-    time_t now;
-    struct tm *local;
-    time (&now);
-    local = localtime(&now);
-    char* time = asctime(local);
-    time[strlen(time)-1]=0;
-    sprintf(date, "%s", time);
+    time_t rawtime;
+    struct tm * timeinfo;
+
+    time (&rawtime);
+    timeinfo = localtime(&rawtime);
+
+    strftime(date,20,"%d-%m-%Y %I:%M:%S",timeinfo);
+
+    time_t sec = time(NULL);
+    sprintf(seconds,"%ld",sec);
 
     strcpy(message,reqType);
+    strcat(message,seconds);
+    strcat(message,delimiter);
     strcat(message,date);
     strcat(message,delimiter);
     strcat(message,author);
@@ -64,6 +84,8 @@ void readPosts()
     char* reqType = new char;
     string delimiter = "&";
 
+    posts.clear();
+
     for(int i = 0; i < servers.size(); i++) {
         if(servers[i].connect()) {
 
@@ -76,6 +98,9 @@ void readPosts()
                 string messageString(message);
 
                 pos = messageString.find(delimiter); 
+                string seconds = messageString.substr(0, pos); 
+                messageString.erase(0, pos + delimiter.length()); 
+                pos = messageString.find(delimiter); 
                 string date = messageString.substr(0, pos); 
                 messageString.erase(0, pos + delimiter.length()); 
                 pos = messageString.find(delimiter); 
@@ -84,13 +109,27 @@ void readPosts()
                 pos = messageString.find(delimiter); 
                 string content = messageString.substr(0, pos);
 
-                cout << date << endl;
-                cout << author << endl;
-                cout << content << endl;
+                struct post currentPost{
+                        stoi(seconds),
+                        date,
+                        author,
+                        content
+                };
+
+                posts.push_back(currentPost);
             }
 
             servers[i].disconnect();
         }
+    }
+
+    sort(posts.begin(), posts.end(), comparePosts);
+
+    for(int i=0; (i< postLimit) && (i < posts.size()); i++)
+    {
+        cout<<posts[i].date<<endl;
+        cout<<posts[i].author<<endl;
+        cout<<posts[i].content<<endl;
     }
 }
 
