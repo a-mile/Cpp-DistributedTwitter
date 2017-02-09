@@ -93,3 +93,15 @@ void server::disconnect() {
     close(descriptor);
 }
 
+const char* server::getName() {
+    return this->name;
+}
+
+const char* server::getIp() {
+    return this->ip;
+}
+
+int server::getPort() {
+    return this->port;
+}
+

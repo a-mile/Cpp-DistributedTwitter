@@ -25,6 +25,9 @@ public:
     int connect();
     int getDescriptor();
     void disconnect();
+    const char* getName();
+    const char* getIp();
+    int getPort();
 };
 
 #endif

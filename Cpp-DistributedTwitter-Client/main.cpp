@@ -203,11 +203,46 @@ void addServer()
     loadServers();
 }
 
+void removeServer()
+{
+    showServerList();
+
+    if(servers.size() > 1)
+    {
+        int number;
+
+        cout<<"Podaj numer serwera, ktory chcesz usunac"<<endl;
+        cin>>number;
+
+        if(number >= 1 && number < servers.size())
+        {
+            servers.erase(servers.begin() + number);
+
+            ofstream output("servers", fstream::out);
+            for(int i=1; i< servers.size(); i++)
+            {
+                output << servers[i].getName();
+                output << endl;
+                output << servers[i].getIp();
+                output << endl;
+                output << servers[i].getPort();
+                output << endl;
+            }
+            output.close();
+        }
+
+    }
+
+
+}
+
 void manageServers()
 {
     int choose;
     cout<<"1 - Dodaj nowy serwer"<<endl;
-    cout<<"2 - Pokaz liste serwerow"<<endl;
+    cout<<"2 - Usun serwer"<<endl;
+    cout<<"3 - Pokaz liste serwerow"<<endl;
+
     cin>> choose;
 
     switch(choose){
@@ -215,6 +250,9 @@ void manageServers()
             addServer();
             break;
         case 2:
+            removeServer();
+            break;
+        case 3:
             showServerList();
             break;
         default:
