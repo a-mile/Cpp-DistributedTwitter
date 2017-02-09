@@ -5,10 +5,15 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <fstream>
+#include <iostream>
 
 using namespace std;
 
 const int messageSize = 400;
+const int authorNameSize = 30;
+
+char* author = new char[authorNameSize];
+int port;
 
 typedef enum requestType{
     get,
@@ -77,9 +82,44 @@ void* client_loop(void *arg) {
     pthread_exit(NULL);
 }
 
+bool loadAuthor()
+{
+    ifstream input("author");
+
+    if(!(input >> author)) {
+        input.close();
+        return false;
+    }
+    input >> port;
+    input.close();
+
+    return true;
+}
+
+void addAuthor()
+{
+    cout<<"Podaj nazwe serwera"<<endl;
+    cin>>author;
+    cout<<"Podaj port serwera"<<endl;
+    cin>>port;
+
+    ofstream output("author", fstream::out | fstream::app);
+
+    output << author;
+    output << endl;
+    output << port;
+    output << endl;
+    output.close();
+
+}
+
 int main(int argc, char **argv)
 {
-    int port = 3000;
+    if(!loadAuthor())
+    {
+        addAuthor();
+    }
+
     struct sockaddr_in server_addr,client_addr;
     socklen_t clientlen = sizeof(client_addr);
 

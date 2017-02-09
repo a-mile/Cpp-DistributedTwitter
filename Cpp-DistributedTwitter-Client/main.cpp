@@ -12,13 +12,13 @@ using namespace std;
 
 const int messageSize = 400;
 const int ipSize = 20;
-const int serverNameSize = 20;
+const int authorNameSize = 30;
 const int postSize = 200;
 const int postLimit = 20;
 
-const char* author = "Amadeusz";
+char* author = new char[authorNameSize];
+int port;
 const char* ip = "127.0.0.1";
-const int port = 3000;
 
 server myServer(author,ip,port);
 vector<server> servers;
@@ -125,23 +125,29 @@ void readPosts()
 
     sort(posts.begin(), posts.end(), comparePosts);
 
-    for(int i=0; (i< postLimit) && (i < posts.size()); i++)
+    if(posts.size() == 0)
     {
-        cout<<posts[i].date<<endl;
-        cout<<posts[i].author<<endl;
-        cout<<posts[i].content<<endl;
+        cout<<"Brak postów"<<endl;
+    }
+    else {
+        for (int i = 0; (i < postLimit) && (i < posts.size()); i++) {
+            cout << posts[i].date << endl;
+            cout << posts[i].author << endl;
+            cout << posts[i].content << endl;
+        }
     }
 }
 
 void loadServers()
 {
+    servers.clear();
     servers.push_back(myServer);
 
     ifstream input("servers");
 
     while(true) {
 
-        char* currentServerName = new char[serverNameSize];
+        char* currentServerName = new char[authorNameSize];
         char* currentServerIp = new char[ipSize];
         int currentServerPort;
 
@@ -160,16 +166,21 @@ void loadServers()
 
 void showServerList()
 {
-    for(int i = 0; i < servers.size(); i++)
+    if(servers.size() == 1)
     {
-        cout<<servers[i].getInfo()<<endl;
+        cout<<"Nie dodano żadnego serwera"<<endl;
+    }
+    else {
+        for (int i = 1; i < servers.size(); i++) {
+            cout << servers[i].getInfo() << endl;
+        }
     }
 }
 
 void addServer()
 {
     char* ip = new char[ipSize];
-    char* name = new char[serverNameSize];
+    char* name = new char[authorNameSize];
     int port;
 
     cout<<"Podaj nazwe serwera"<<endl;
@@ -188,6 +199,8 @@ void addServer()
     output << port;
     output << endl;
     output.close();
+
+    loadServers();
 }
 
 void manageServers()
@@ -209,9 +222,28 @@ void manageServers()
     }
 }
 
+bool loadAuthor()
+{
+    ifstream input("author");
+
+    if(!(input >> author)) {
+        input.close();
+        return false;
+    }
+    input >> port;
+    input.close();
+
+    return true;
+}
+
 int main(int argc, char **argv)
 {
     loadServers();
+
+    if(!loadAuthor())
+    {
+        cout<<"Nie skonfigurowano serwera"<<endl<<endl;
+    }
 
     while(true) {
         int choose;
