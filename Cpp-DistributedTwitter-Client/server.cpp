@@ -11,6 +11,8 @@ server::server(const char * name, const char * ip, int port) {
     server_addr.sin_port = htons(port);
 }
 
+server::server() {}
+
 char* server::getInfo() {
     char* info = new char[100];
     strcpy(info, this->name);

@@ -21,6 +21,7 @@ private:
     struct sockaddr_in server_addr;
 public:
     server(const char*,const char*, int);
+    server();
     char* getInfo();
     int connect();
     int getDescriptor();

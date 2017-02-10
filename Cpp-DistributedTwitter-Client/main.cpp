@@ -19,8 +19,9 @@ const int postLimit = 20;
 char* author = new char[authorNameSize];
 int port;
 const char* ip = "127.0.0.1";
+bool configured;
 
-server myServer(author,ip,port);
+server *myServer;
 vector<server> servers;
 vector<struct post> posts;
 
@@ -38,6 +39,12 @@ bool comparePosts(const struct post &a, const struct post &b)
 
 void writePost()
 {
+    if(!configured)
+    {
+        cout<<"Nie skonfigurowano serwera"<<endl;
+        return;
+    }
+
     char* message = new char[messageSize];
     char* post = new char[postSize];
     const char* delimiter = "&";
@@ -73,54 +80,64 @@ void writePost()
     strcat(message, post);
     strcat(message,delimiter);
 
-    if(myServer.connect()) {
-        write(myServer.getDescriptor(), message, messageSize);
-        myServer.disconnect();
+    if(myServer->connect()) {
+        write(myServer->getDescriptor(), message, messageSize);
+        myServer->disconnect();
     }
 }
 
-void readPosts()
+void readServerPosts(server* serv)
 {
     char* reqType = new char;
     string delimiter = "&";
 
+    if(serv->connect()) {
+
+        write(serv->getDescriptor(), reqType, 1);
+
+        char *message = new char[messageSize];
+        while (read(serv->getDescriptor(), message, messageSize) > 0) {
+            size_t pos = 0; 
+            string token;  
+            string messageString(message);
+
+            pos = messageString.find(delimiter); 
+            string seconds = messageString.substr(0, pos); 
+            messageString.erase(0, pos + delimiter.length()); 
+            pos = messageString.find(delimiter); 
+            string date = messageString.substr(0, pos); 
+            messageString.erase(0, pos + delimiter.length()); 
+            pos = messageString.find(delimiter); 
+            string author = messageString.substr(0, pos); 
+            messageString.erase(0, pos + delimiter.length()); 
+            pos = messageString.find(delimiter); 
+            string content = messageString.substr(0, pos);
+
+            struct post currentPost{
+                    stoi(seconds),
+                    date,
+                    author,
+                    content
+            };
+
+            posts.push_back(currentPost);
+        }
+
+        serv->disconnect();
+    } else{
+        cout << "Nie można połączyć z "<<serv->getName()<<endl;
+    }
+}
+
+void readAllPosts()
+{
     posts.clear();
 
-    for(int i = 0; i < servers.size(); i++) {
-        if(servers[i].connect()) {
+    if(configured)
+        readServerPosts(myServer);
 
-            write(servers[i].getDescriptor(), reqType, 1);
-
-            char *message = new char[messageSize];
-            while (read(servers[i].getDescriptor(), message, messageSize) > 0) {
-                size_t pos = 0; 
-                string token;  
-                string messageString(message);
-
-                pos = messageString.find(delimiter); 
-                string seconds = messageString.substr(0, pos); 
-                messageString.erase(0, pos + delimiter.length()); 
-                pos = messageString.find(delimiter); 
-                string date = messageString.substr(0, pos); 
-                messageString.erase(0, pos + delimiter.length()); 
-                pos = messageString.find(delimiter); 
-                string author = messageString.substr(0, pos); 
-                messageString.erase(0, pos + delimiter.length()); 
-                pos = messageString.find(delimiter); 
-                string content = messageString.substr(0, pos);
-
-                struct post currentPost{
-                        stoi(seconds),
-                        date,
-                        author,
-                        content
-                };
-
-                posts.push_back(currentPost);
-            }
-
-            servers[i].disconnect();
-        }
+    for(int i=0; i < servers.size(); i++) {
+        readServerPosts(&servers[i]);
     }
 
     sort(posts.begin(), posts.end(), comparePosts);
@@ -141,7 +158,6 @@ void readPosts()
 void loadServers()
 {
     servers.clear();
-    servers.push_back(myServer);
 
     ifstream input("servers");
 
@@ -164,16 +180,18 @@ void loadServers()
     input.close();
 }
 
-void showServerList()
+bool showServerList()
 {
-    if(servers.size() == 1)
+    if(servers.size() == 0)
     {
         cout<<"Nie dodano żadnego serwera"<<endl;
+        return false;
     }
     else {
-        for (int i = 1; i < servers.size(); i++) {
+        for (int i=0; i < servers.size(); i++) {
             cout << servers[i].getInfo() << endl;
         }
+        return true;
     }
 }
 
@@ -205,14 +223,13 @@ void addServer()
 
 void removeServer()
 {
-    showServerList();
-
-    if(servers.size() > 1)
+    if(showServerList())
     {
         int number;
 
         cout<<"Podaj numer serwera, ktory chcesz usunac"<<endl;
         cin>>number;
+        number++;
 
         if(number >= 1 && number < servers.size())
         {
@@ -238,25 +255,36 @@ void removeServer()
 
 void manageServers()
 {
-    int choose;
-    cout<<"1 - Dodaj nowy serwer"<<endl;
-    cout<<"2 - Usun serwer"<<endl;
-    cout<<"3 - Pokaz liste serwerow"<<endl;
+    while(true) {
+        int choose;
+        cout << "1 - Dodaj nowy serwer" << endl;
+        cout << "2 - Usun serwer" << endl;
+        cout << "3 - Pokaz liste serwerow" << endl;
+        cout << "4 - Cofnij" << endl;
+        cin >> choose;
 
-    cin>> choose;
+        if (choose == 4)
+            return;
 
-    switch(choose){
-        case 1:
-            addServer();
-            break;
-        case 2:
-            removeServer();
-            break;
-        case 3:
-            showServerList();
-            break;
-        default:
-            break;
+        if (cin.fail()) {
+            cin.clear();
+            cin.ignore();
+            cout << "Nie ma takiej opcji" << endl;
+        } else {
+            switch (choose) {
+                case 1:
+                    addServer();
+                    break;
+                case 2:
+                    removeServer();
+                    break;
+                case 3:
+                    showServerList();
+                    break;
+                default:
+                    cout << "Nie ma takiej opcji" << endl;
+            }
+        }
     }
 }
 
@@ -280,7 +308,11 @@ int main(int argc, char **argv)
 
     if(!loadAuthor())
     {
+        configured = false;
         cout<<"Nie skonfigurowano serwera"<<endl<<endl;
+    } else{
+        configured = true;
+        myServer = new server(author,ip,port);
     }
 
     while(true) {
@@ -292,20 +324,27 @@ int main(int argc, char **argv)
         cout << "4 - Zamknij" << endl;
         cin >> choose;
 
-        if(choose == 4)
-            break;
+        if(cin.fail()){
+            cin.clear();
+            cin.ignore();
+            cout << "Nie ma takiej opcji" << endl;
+        } else {
+            if (choose == 4)
+                break;
 
-        switch (choose) {
-            case 1:
-                writePost();
-                break;
-            case 2:
-                readPosts();
-                break;
-            case 3:
-                manageServers();
-            default:
-                break;
+            switch (choose) {
+                case 1:
+                    writePost();
+                    break;
+                case 2:
+                    readAllPosts();
+                    break;
+                case 3:
+                    manageServers();
+                    break;
+                default:
+                    cout << "Nie ma takiej opcji" << endl;
+            }
         }
     }
     return 0;
