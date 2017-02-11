@@ -97,20 +97,20 @@ void readServerPosts(server* serv)
 
         char *message = new char[messageSize];
         while (read(serv->getDescriptor(), message, messageSize) > 0) {
-            size_t pos = 0; 
-            string token;  
+            size_t pos = 0;
+            string token;
             string messageString(message);
 
-            pos = messageString.find(delimiter); 
-            string seconds = messageString.substr(0, pos); 
-            messageString.erase(0, pos + delimiter.length()); 
-            pos = messageString.find(delimiter); 
-            string date = messageString.substr(0, pos); 
-            messageString.erase(0, pos + delimiter.length()); 
-            pos = messageString.find(delimiter); 
-            string author = messageString.substr(0, pos); 
-            messageString.erase(0, pos + delimiter.length()); 
-            pos = messageString.find(delimiter); 
+            pos = messageString.find(delimiter);
+            string seconds = messageString.substr(0, pos);
+            messageString.erase(0, pos + delimiter.length());
+            pos = messageString.find(delimiter);
+            string date = messageString.substr(0, pos);
+            messageString.erase(0, pos + delimiter.length());
+            pos = messageString.find(delimiter);
+            string author = messageString.substr(0, pos);
+            messageString.erase(0, pos + delimiter.length());
+            pos = messageString.find(delimiter);
             string content = messageString.substr(0, pos);
 
             struct post currentPost{
@@ -189,7 +189,7 @@ bool showServerList()
     }
     else {
         for (int i=0; i < servers.size(); i++) {
-            cout << servers[i].getInfo() << endl;
+            cout <<i+1<<". "<< servers[i].getInfo() << endl;
         }
         return true;
     }
@@ -229,6 +229,7 @@ void removeServer()
 
         cout<<"Podaj numer serwera, ktory chcesz usunac"<<endl;
         cin>>number;
+
         number++;
 
         if(number >= 1 && number < servers.size())
@@ -246,11 +247,11 @@ void removeServer()
                 output << endl;
             }
             output.close();
+        } else{
+            cout<<"Nie ma takiego serwera"<<endl;
         }
 
     }
-
-
 }
 
 void manageServers()
@@ -269,7 +270,7 @@ void manageServers()
         if (cin.fail()) {
             cin.clear();
             cin.ignore();
-            cout << "Nie ma takiej opcji" << endl;
+            cout << "Nie ma takiej opcji" << endl<<endl;
         } else {
             switch (choose) {
                 case 1:
@@ -282,7 +283,7 @@ void manageServers()
                     showServerList();
                     break;
                 default:
-                    cout << "Nie ma takiej opcji" << endl;
+                    cout << "Nie ma takiej opcji" << endl<<endl;
             }
         }
     }
@@ -309,7 +310,7 @@ int main(int argc, char **argv)
     if(!loadAuthor())
     {
         configured = false;
-        cout<<"Nie skonfigurowano serwera"<<endl<<endl;
+        cout<<"Nie skonfigurowano serwera"<<endl;
     } else{
         configured = true;
         myServer = new server(author,ip,port);

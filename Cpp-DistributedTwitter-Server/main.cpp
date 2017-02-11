@@ -31,6 +31,7 @@ enum requestType getRequestType(int sck)
 }
 
 void* client_loop(void *arg) {
+    pthread_mutex_t	mutex = PTHREAD_MUTEX_INITIALIZER;
     char* errorMessage = new char[messageSize];
     strcpy(errorMessage,"Nie udało się przetworzyć zapytania");
 
@@ -44,6 +45,9 @@ void* client_loop(void *arg) {
             //Odczytaj wiadomości
 
             char *message = new char[messageSize];
+
+            pthread_mutex_lock(&mutex);
+
             ifstream input("posts");
             string messageStr;
 
@@ -54,6 +58,8 @@ void* client_loop(void *arg) {
 
             input.close();
 
+            pthread_mutex_unlock(&mutex);
+
             break;
         }
         case requestType::post : {
@@ -62,10 +68,14 @@ void* client_loop(void *arg) {
             char *message = new char[messageSize];
             read(sck, message, messageSize);
 
+            pthread_mutex_lock(&mutex);
+
             ofstream output("posts", fstream::out | fstream::app);
             output << message;
             output << endl;
             output.close();
+
+            pthread_mutex_unlock(&mutex);
 
             break;
         }
