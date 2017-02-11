@@ -67,6 +67,7 @@ void writePost()
 
     strftime(date,20,"%d-%m-%Y %I:%M:%S",timeinfo);
 
+    //Data względna w sekundach, aby uprościć sortowanie
     time_t sec = time(NULL);
     sprintf(seconds,"%ld",sec);
 
@@ -289,6 +290,7 @@ void manageServers()
     }
 }
 
+//Wczytaj nazwę i port własnego serwera
 bool loadAuthor()
 {
     ifstream input("author");

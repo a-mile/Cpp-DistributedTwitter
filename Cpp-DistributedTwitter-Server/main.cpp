@@ -92,6 +92,7 @@ void* client_loop(void *arg) {
     pthread_exit(NULL);
 }
 
+//Wczytaj nazwę serwera i port
 bool loadAuthor()
 {
     ifstream input("author");
@@ -106,6 +107,7 @@ bool loadAuthor()
     return true;
 }
 
+//Dodaj nazwę serwera i port
 void addAuthor()
 {
     cout<<"Podaj nazwe serwera"<<endl;
