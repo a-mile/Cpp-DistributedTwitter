@@ -9,7 +9,7 @@ wiadomości z dowolnego serwera. Pozwala na zarządzanie serwerami (dodawanie i 
 
 Sposób kompilacji:
 
-W folderze projektu w podfolderze cmake-build-debug znajduje się Makefile który należy uruchomić komendą make.
+Program korzysta z systemu budowania cmake.
 
 Sposób użycia:
 
